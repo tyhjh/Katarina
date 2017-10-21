@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="220dp"
+    android:id="@+id/fl_gif"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/transparent"
+    android:clickable="true">
+
+    <com.ant.liao.GifView
+        android:id="@+id/gif"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <ImageView
+        android:layout_marginLeft="10dp"
+        android:elevation="2dp"
+        android:id="@+id/userheadImage"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="70dp" />
+
+    <TextView
+        android:elevation="4dp"
+        android:id="@+id/tv_activity_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="24dp"
+        android:padding="19dp"
+        android:text="Tyhj"
+        android:textColor="@android:color/white"/>
+    <TextView
+        android:elevation="4dp"
+        android:id="@+id/signature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:padding="17dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_gravity="bottom"
+        android:background="#dddddd" />
+</FrameLayout>
