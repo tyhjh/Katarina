@@ -12,8 +12,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 
-import cn.dxjia.ffmpeg.library.FFmpegNativeHelper;
-
 
 /**
  * Created by Tyhj on 2017/10/19.
@@ -27,9 +25,9 @@ public class Mv2Gif {
     public static boolean convert(String pathFrom, String pathTo, int time, int fps) {
 
         String command = "ffmpeg -i " + pathFrom + " -t " + time + " -pix_fmt rgb24 -r " + fps + " -y -f gif " + pathTo;
-        Log.e("command",command);
-        String result = FFmpegNativeHelper.runCommand(command);
-        if (result.contains("successfully"))
+        Log.e("command", command);
+        int result = FFmpeg.getsInstance().run(command.split(" "));
+        if (result == 0)
             return true;
         else
             return false;
@@ -38,8 +36,8 @@ public class Mv2Gif {
 
     public static void upload(String pathFrom) {
         String key = "g_" + Defined.getNowTimeE();
-        String pathTo = MyApplication.rootDir + "gif/" + key + ".gif";
-        if (false&&convert(pathFrom, pathTo, 100, 5)) {
+        final String pathTo = MyApplication.rootDir + "gif/" + key + ".gif";
+        if (true && convert(pathFrom, pathTo, 100, 5)) {
             String token = Auth.create(AccessKey, SecretKey).uploadToken("yorgif");
             new UploadManager().put(pathTo, key, token,
                     new UpCompletionHandler() {
@@ -53,13 +51,14 @@ public class Mv2Gif {
                                 //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
                             }
                             Log.i("qiniu", key + ",\r\n " + info + ",\r\n " + res);
+                            File file = new File(pathTo);
+                            if (file.exists()) {
+                                file.delete();
+                            }
                         }
                     }, null);
         }
-        File file = new File(pathTo);
-        if (file.exists()) {
-            file.delete();
-        }
     }
+
 
 }

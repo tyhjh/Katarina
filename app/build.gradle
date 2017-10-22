@@ -10,6 +10,15 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+            }
+        }
+
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
 
     }
     buildTypes {
@@ -19,17 +28,18 @@ android {
         }
     }
 
-/*    externalNativeBuild {
+
+    externalNativeBuild {
         cmake {
             path "CMakeLists.txt"
         }
-    }*/
+    }
 
 
 
     sourceSets {
         main {
-            jniLibs.srcDirs = ['src/main/libs']
+            jniLibs.srcDirs = ['libs']
             jni.srcDirs=[]
         }
     }
@@ -50,7 +60,6 @@ dependencies {
     compile 'com.android.support:support-vector-drawable:25.3.1'
     compile 'com.android.support:cardview-v7:25.3.1'
     compile 'com.android.support:palette-v7:25.3.1'
-    compile 'cn.dxjia:ffmpegexecutor:0.1.7'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.mxn.soul:flowingdrawer-core:2.0.0'
     compile 'com.nineoldandroids:library:2.4.0'
