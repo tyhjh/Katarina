@@ -63,8 +63,6 @@ public class MenuListFragment extends Fragment {
                         break;
                     case R.id.menu_news:
                         break;
-                    case R.id.menu_photos_nearby:
-                        break;
                     case R.id.menu_group_2:
                         break;
                     case R.id.menu_settings:

@@ -22,7 +22,7 @@
     </android.support.v7.widget.CardView>
 
 
-    <android.support.v7.widget.RecyclerView
+    <com.yorhp.transcribescreen.view.myView.GlideRecycleView
         android:clickable="true"
         android:id="@+id/rcly_gif"
         android:layout_width="match_parent"
@@ -30,7 +30,7 @@
         android:clipToPadding="false"
         android:paddingTop="20dp">
 
-    </android.support.v7.widget.RecyclerView>
+    </com.yorhp.transcribescreen.view.myView.GlideRecycleView>
 
 
 </LinearLayout>

@@ -8,7 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.squareup.picasso.Picasso;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.yorhp.transcribescreen.R;
 import com.yorhp.transcribescreen.module.Gif;
 
@@ -41,7 +42,8 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
     public void onBindViewHolder(final Holder holder, int position) {
         final Gif gif = arrayList.get(holder.getPosition());
         holder.tv_name.setText(gif.getUserName());
-        Picasso.with(context).load(gif.getUrl()).into(holder.iv_gif);
+        //Picasso.with(context).load(gif.getUrl()).into(holder.iv_gif);
+        Glide.with(context).load(gif.getUrl()).diskCacheStrategy(DiskCacheStrategy.SOURCE).into(holder.iv_gif);
     }
 
     @Override

@@ -3,7 +3,7 @@
         <item
             android:id="@+id/menu_feed"
             android:icon="@drawable/ic_global_menu_feed"
-            android:title="我的帖子" />
+            android:title="我的图片" />
         <item
             android:id="@+id/menu_direct"
             android:icon="@drawable/ic_global_menu_direct"
@@ -12,10 +12,6 @@
             android:id="@+id/menu_news"
             android:icon="@drawable/ic_global_menu_news"
             android:title="通知" />
-        <item
-            android:id="@+id/menu_photos_nearby"
-            android:icon="@drawable/ic_global_menu_nearby"
-            android:title="附近的人" />
         <item
             android:id="@+id/menu_twocode"
             android:icon="@drawable/ic_twocode_24dp"

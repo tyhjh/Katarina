@@ -24,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.mxn.soul.flowingdrawer_core.ElasticDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingMenuLayout;
@@ -36,6 +37,7 @@ import com.yorhp.transcribescreen.utils.Mv2Gif;
 import com.yorhp.transcribescreen.utils.ScreenRecorder;
 import com.yorhp.transcribescreen.view.adapter.Adapter;
 import com.yorhp.transcribescreen.view.fragement.MenuListFragment;
+import com.yorhp.transcribescreen.view.myView.GlideRecycleView;
 import com.yorhp.transcribescreen.view.myView.LoopBannerView;
 
 import org.androidannotations.annotations.AfterViews;
@@ -48,6 +50,10 @@ import org.androidannotations.annotations.ViewById;
 import java.io.File;
 import java.util.ArrayList;
 
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_DRAGGING;
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
+import static java.security.AccessController.getContext;
+
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends BaseActivity {
@@ -55,9 +61,9 @@ public class MainActivity extends BaseActivity {
     private String transcribeMoviePath;
     private String fileName;
     private static final int REQUEST_CODE = 1;
-    private static final int VIDEO_CAPTURE=3;
-    private static final int EXTRA_DURATION_LIMIT=100;
-    private static final long EXTRA_SIZE_LIMIT=10485760L*500;
+    private static final int VIDEO_CAPTURE = 3;
+    private static final int EXTRA_DURATION_LIMIT = 100;
+    private static final long EXTRA_SIZE_LIMIT = 10485760L * 500;
     private AnimatorSet animatorSet, animatorSetBack, transcribeStart, transcribeStop;
 
     MediaProjectionManager mMediaProjectionManager;
@@ -72,7 +78,7 @@ public class MainActivity extends BaseActivity {
     FlowingDrawer drawerlayout;
 
     @ViewById
-    RecyclerView rcly_gif;
+    GlideRecycleView rcly_gif;
 
     @ViewById
     FloatingActionButton fab_add;
@@ -133,7 +139,13 @@ public class MainActivity extends BaseActivity {
         gifs.add(new Gif(0, "http://img3.imgtn.bdimg.com/it/u=3746288086,1167920727&fm=27&gp=0.jpg", "Bouncing Ball", 0));
         gifs.add(new Gif(0, "http://img1.imgtn.bdimg.com/it/u=2646813706,2163648913&fm=27&gp=0.jpg", "Waving Man", 0));
         gifs.add(new Gif(0, "http://img0.imgtn.bdimg.com/it/u=1486507027,3356122497&fm=27&gp=0.jpg", "Animator", 0));
-        gifs.add(new Gif(0, "http://img5.imgtn.bdimg.com/it/u=2956650276,3883767597&fm=27&gp=0.jpg", "tyhj", 0));
+        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/2de892fdda63b6f08d33.jpg", "tyhj", 0));
+        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/673a3e8635731bc31f24.gif", "tyhj", 0));
+        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/1e073e3d618211af98ad.gif", "tyhj", 0));
+        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/087818d1c6851befc7db.gif", "tyhj", 0));
+        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/e7e75ca5c83c50143005.gif", "tyhj", 0));
+        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/88da253584ed0e6aed15.gif", "tyhj", 0));
+        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/ddcc72642f4567e5a0e7.gif", "tyhj", 0));
         adapter = new Adapter(this, gifs);
         rcly_gif.setAdapter(adapter);
         rcly_gif.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
@@ -328,7 +340,7 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(data==null){
+        if (data == null) {
             return;
         }
         if (requestCode == REQUEST_CODE) {
@@ -351,21 +363,16 @@ public class MainActivity extends BaseActivity {
         } else if (requestCode == 2) {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
-                Cursor cursor = getContentResolver().query(uri, null, null,
-                        null, null);
-                cursor.moveToFirst();
-                // String imgNo = cursor.getString(0); // 图片编号
-                String v_path = cursor.getString(1); // 图片文件路径
-                String v_size = cursor.getString(2); // 图片大小
-                String v_name = cursor.getString(3); // 图片文件名
+                String v_path=Defined.getFilePathFromContentUri(uri,getContentResolver());
                 if (v_path.toUpperCase().endsWith(".MP4")) {
-                    mv2Gif(v_path, MyApplication.rootDir + "gif/" + v_name + Defined.getNowTimeE() + ".gif");
+                    mv2Gif(v_path, MyApplication.rootDir + "gif/" + "G_" + Defined.getNowTimeE() + ".gif");
                 } else {
                     snackbar(fab_add, "请选择MP4格式的视频", Snackbar.LENGTH_SHORT);
+                    log(v_path);
                 }
             }
-        }else if(requestCode==VIDEO_CAPTURE&& requestCode==VIDEO_CAPTURE){
-            Uri videoUri=data.getData();
+        } else if (requestCode == VIDEO_CAPTURE && requestCode == VIDEO_CAPTURE) {
+            Uri videoUri = data.getData();
             Cursor cursor = getContentResolver().query(videoUri, null, null,
                     null, null);
             cursor.moveToFirst();
@@ -397,7 +404,7 @@ public class MainActivity extends BaseActivity {
         /* 开启Pictures画面Type设定为image */
         //intent.setType("image/*");
         // intent.setType("audio/*"); //选择音频
-        intent.setType("video/*"); //选择视频 （mp4 3gp 是android支持的视频格式）
+        intent.setType("video/*;image/*"); //选择视频 （mp4 3gp 是android支持的视频格式）
 
         // intent.setType("video/*;image/*");//同时选择视频和图片
 
@@ -408,12 +415,12 @@ public class MainActivity extends BaseActivity {
     }
 
     //录制视频
-    private void recorderMovie(){
-        Intent intent=new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY,1);
-        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT,EXTRA_SIZE_LIMIT);
-        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT,EXTRA_DURATION_LIMIT);
-        startActivityForResult(intent,VIDEO_CAPTURE);
+    private void recorderMovie() {
+        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, EXTRA_SIZE_LIMIT);
+        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, EXTRA_DURATION_LIMIT);
+        startActivityForResult(intent, VIDEO_CAPTURE);
     }
 
 
