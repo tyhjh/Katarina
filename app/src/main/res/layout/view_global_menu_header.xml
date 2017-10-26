@@ -23,7 +23,7 @@
 
     <TextView
         android:elevation="4dp"
-        android:id="@+id/tv_activity_name"
+        android:id="@+id/tv_usr_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"

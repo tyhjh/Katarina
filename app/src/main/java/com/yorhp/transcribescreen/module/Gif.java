@@ -8,9 +8,10 @@ public class Gif {
     private int id;
     private String url;
     private String userName;
-    private int userId;
+    private String userId;
 
-    public Gif(int id, String url, String userName, int userId) {
+
+    public Gif(int id, String url, String userName, String userId) {
         this.id = id;
         this.url = url;
         this.userName = userName;
@@ -41,11 +42,11 @@ public class Gif {
         this.userName = userName;
     }
 
-    public int getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 }

@@ -19,14 +19,14 @@ import java.util.ArrayList;
  * Created by Tyhj on 2017/6/29.
  */
 
-public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
+public class GifAdapter extends RecyclerView.Adapter<GifAdapter.Holder> {
 
     ArrayList<Gif> arrayList = new ArrayList<Gif>();
     Context context;
     LayoutInflater inflater;
 
 
-    public Adapter(Context context, ArrayList<Gif> gifArrayList) {
+    public GifAdapter(Context context, ArrayList<Gif> gifArrayList) {
         this.context = context;
         this.inflater = LayoutInflater.from(context);
         arrayList = gifArrayList;
@@ -34,7 +34,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.Holder> {
 
     @Override
     public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.item_list, parent, false);
+        View view = inflater.inflate(R.layout.item_gif, parent, false);
         return new Holder(view);
     }
 

@@ -8,9 +8,24 @@ import android.util.Log;
 
 import com.squareup.picasso.LruCache;
 import com.squareup.picasso.Picasso;
+import com.yorhp.transcribescreen.module.Setting;
+import com.yorhp.transcribescreen.module.UserInfo;
+import com.yorhp.transcribescreen.retrofite.convert.MyFactory;
+import com.yorhp.transcribescreen.utils.InternetUtil;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+
+import okhttp3.Cache;
+import okhttp3.CacheControl;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+
 
 /**
  * Created by Tyhj on 2017/5/23.
@@ -21,11 +36,17 @@ public class MyApplication extends Application {
     public static final boolean ISDEBUG = true;
     public static ArrayList<Activity> activities = new ArrayList<>();
     public static String rootDir;
+    public static Setting setting;
+    public static boolean isFirstLog;
+    public static UserInfo userInfo;
+    private static Retrofit retrofit;
+
 
     public void onCreate() {
         super.onCreate();
         instance = this;
         initPicasso();
+        initRetrofite();
         initDir();
     }
 
@@ -71,6 +92,81 @@ public class MyApplication extends Application {
             activities.get(i).finish();
         }
     }
+
+
+    private void initRetrofite() {
+        //cache url
+        File httpCacheDirectory = new File(getCacheDir(), "responses");
+
+        int cacheSize = 50 * 1024 * 1024; // 10 MiB
+        Cache cache = new Cache(httpCacheDirectory, cacheSize);
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(getInterceptor())
+                .addNetworkInterceptor(getNetWorkInterceptor())
+                .cache(cache).build();
+
+        retrofit = new Retrofit
+                .Builder()
+                .baseUrl("http://192.168.31.170:8080/api/")
+                .client(client)
+                .addConverterFactory(MyFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .build();
+    }
+
+    /**
+     * 设置返回数据的  Interceptor  判断网络   没网读取缓存
+     */
+    public Interceptor getInterceptor(){
+        return new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                if (!InternetUtil.isOnline(getBaseContext())) {
+                    request = request.newBuilder()
+                            .cacheControl(CacheControl.FORCE_CACHE)
+                            .build();
+                }
+                return chain.proceed(request);
+            }
+        };
+    }
+
+
+    /**
+     * 设置连接器  设置缓存
+     */
+    public Interceptor getNetWorkInterceptor (){
+        return new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                Response response = chain.proceed(request);
+                if (InternetUtil.isOnline(getBaseContext())) {
+                    int maxAge = 0 * 60;
+                    // 有网络时 设置缓存超时时间0个小时
+                    response.newBuilder()
+                            .header("Cache-Control", "public, max-age=" + maxAge)
+                            .removeHeader("Pragma")
+                            .build();
+                } else {
+                    // 无网络时，设置超时为1周
+                    int maxStale = 60 * 60 * 24 * 7;
+                    response.newBuilder()
+                            .header("Cache-Control", "public, only-if-cached, max-stale=" + maxStale)
+                            .removeHeader("Pragma")
+                            .build();
+                }
+                return response;
+            }
+        };
+    }
+
+    public static Retrofit getRetrofit() {
+        return retrofit;
+    }
+
+
 }
 
 

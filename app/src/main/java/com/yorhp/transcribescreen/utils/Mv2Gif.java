@@ -12,6 +12,8 @@ import org.json.JSONObject;
 
 import java.io.File;
 
+import static com.yorhp.transcribescreen.app.MyApplication.setting;
+
 
 /**
  * Created by Tyhj on 2017/10/19.
@@ -22,9 +24,9 @@ public class Mv2Gif {
     private static final String AccessKey = "ziAwdcHcaJK5BhT9ndj7US7gKUSIMI20BgDM283X";
     private static final String SecretKey = "-c8tMsBZXAbK8epmMT2av3Blm_ePXRf47NpUhE85";
 
-    public static boolean convert(String pathFrom, String pathTo, int time, int fps) {
+    public static boolean convert(String pathFrom, String pathTo) {
 
-        String command = "ffmpeg -i " + pathFrom + " -t " + time + " -pix_fmt rgb24 -r " + fps + " -y -f gif " + pathTo;
+        String command = "ffmpeg -i " + pathFrom + " -ss " + setting.getSkip() + " -t " + setting.getMp4Time() + " -vf scale=" + setting.getGifResolutionWidth() + ":-1 -r " + setting.getGifFrameRates()+" "+ pathTo;
         Log.e("command", command);
         int result = FFmpeg.getsInstance().run(command.split(" "));
         if (result == 0)
@@ -35,9 +37,11 @@ public class Mv2Gif {
 
 
     public static void upload(String pathFrom) {
+        if (!setting.getShare())
+            return;
         String key = "g_" + Defined.getNowTimeE();
         final String pathTo = MyApplication.rootDir + "gif/" + key + ".gif";
-        if (true && convert(pathFrom, pathTo, 100, 5)) {
+        if (true && convert(pathFrom, pathTo)) {
             String token = Auth.create(AccessKey, SecretKey).uploadToken("yorgif");
             new UploadManager().put(pathTo, key, token,
                     new UpCompletionHandler() {
