@@ -3,6 +3,7 @@ package com.yorhp.transcribescreen.view.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.WindowManager;
 
 import com.litesuits.orm.log.OrmLog;
 import com.yorhp.transcribescreen.R;
@@ -27,6 +28,7 @@ public class WelcomeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @AfterViews
@@ -35,14 +37,14 @@ public class WelcomeActivity extends AppCompatActivity {
         OrmLog.i("tag", list);
         if (settings.size() == 0) {
             MyApplication.isFirstLog = true;
-            Setting setting = new Setting(true, true, 720, 1028, 0, 0, 15, 0, 100);
+            Setting setting = new Setting(false, true, 1280, 720, 0, 0, 15, 0, 100, ChineseName.getName(),"http://ac-FGTNB2h8.clouddn.com/c7021832df7a8f0515d7.apk");
             MLiteOrm.getInstance().save(setting);
             MyApplication.setting = setting;
         } else {
             MyApplication.setting = (Setting) settings.get(0);
         }
         MyApplication.userInfo = new UserInfo(
-                ChineseName.getName(),
+                MyApplication.setting.getUserName(),
                 CommonUtil.getAppVersion(this),
                 CommonUtil.getModel(),
                 CommonUtil.getAndroidVersion(),

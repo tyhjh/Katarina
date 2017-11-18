@@ -113,8 +113,8 @@ public class LoopBannerView extends FrameLayout implements View.OnTouchListener 
         Picasso.with(context).load("http://img5.imgtn.bdimg.com/it/u=3469050749,2701596166&fm=27&gp=0.jpg").into(iv_last);
         Picasso.with(context).load("http://img5.imgtn.bdimg.com/it/u=3469050749,2701596166&fm=27&gp=0.jpg").into(iv_last_copy);
 
-        Picasso.with(context).load("http://img1.imgtn.bdimg.com/it/u=725515905,2472463078&fm=27&gp=0.jpg").into(iv_other1);
-        Picasso.with(context).load("http://img5.imgtn.bdimg.com/it/u=641731946,475781889&fm=27&gp=0.jpg").into(iv_other2);
+        Picasso.with(context).load("http://img1.imgtn.bdimg.com/it/u=907245543,1366014994&fm=27&gp=0.jpg").into(iv_other1);
+        Picasso.with(context).load("http://img3.imgtn.bdimg.com/it/u=3746288086,1167920727&fm=27&gp=0.jpg").into(iv_other2);
 
         ll_root = (LinearLayout) findViewById(R.id.ll_root);
         ll_point = (LinearLayout) findViewById(R.id.ll_point);

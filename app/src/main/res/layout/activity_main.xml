@@ -7,7 +7,7 @@
     android:background="@color/bggray"
     android:clipChildren="false"
     android:clipToPadding="false"
-    app:edMenuBackground="@color/purple2"
+    app:edMenuBackground="@color/whitesmoke"
     app:edMenuSize="260dp"
     app:edPosition="1">
 

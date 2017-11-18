@@ -1,9 +1,11 @@
 package com.yorhp.transcribescreen.view.activity;
 
+import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.Dialog;
 import android.content.Intent;
-import android.database.Cursor;
+import android.content.pm.PackageManager;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
@@ -13,17 +15,27 @@ import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.mxn.soul.flowingdrawer_core.ElasticDrawer;
@@ -37,25 +49,32 @@ import com.yorhp.transcribescreen.dagger.module.GetGifsModule;
 import com.yorhp.transcribescreen.dagger.module.VersionModule;
 import com.yorhp.transcribescreen.module.App;
 import com.yorhp.transcribescreen.module.Gif;
+import com.yorhp.transcribescreen.module.impl.PutGif;
 import com.yorhp.transcribescreen.presenter.AppVersionListener;
 import com.yorhp.transcribescreen.presenter.GifListener;
+import com.yorhp.transcribescreen.presenter.ShowDownloadFile;
 import com.yorhp.transcribescreen.presenter.impl.CheckVerionPresenter;
+import com.yorhp.transcribescreen.presenter.impl.DownloadPresenter;
 import com.yorhp.transcribescreen.presenter.impl.GetGifPresenter;
 import com.yorhp.transcribescreen.presenter.impl.PushUserInfoPresenter;
+import com.yorhp.transcribescreen.utils.AppUtil;
 import com.yorhp.transcribescreen.utils.CommonUtil;
 import com.yorhp.transcribescreen.utils.Defined;
+import com.yorhp.transcribescreen.utils.MLiteOrm;
 import com.yorhp.transcribescreen.utils.Mv2Gif;
 import com.yorhp.transcribescreen.utils.ScreenRecorder;
 import com.yorhp.transcribescreen.view.adapter.GifAdapter;
 import com.yorhp.transcribescreen.view.fragement.MenuListFragment;
 import com.yorhp.transcribescreen.view.myView.GlideRecycleView;
 import com.yorhp.transcribescreen.view.myView.LoopBannerView;
+import com.yorhp.transcribescreen.view.myView.MyDialog;
 import com.yorhp.transcribescreen.view.myView.loadingview.LoadingDialog;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.LongClick;
 import org.androidannotations.annotations.UiThread;
 import org.androidannotations.annotations.ViewById;
 
@@ -70,8 +89,9 @@ import static com.yorhp.transcribescreen.app.MyApplication.setting;
 
 
 @EActivity(R.layout.activity_main)
-public class MainActivity extends BaseActivity implements GifListener, AppVersionListener {
+public class MainActivity extends BaseActivity implements GifListener, AppVersionListener, ShowDownloadFile {
 
+    private static final int CAMERA_REQUEST_CODE =4 ;
     private String transcribeMoviePath;
     private String fileName;
     private static final int REQUEST_CODE = 1;
@@ -80,17 +100,26 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     private AnimatorSet animatorSet, animatorSetBack, transcribeStart, transcribeStop;
     //比特率
     private int screenRecordBitrate = 6000000;
+    private String mp4path;
 
     MediaProjectionManager mMediaProjectionManager;
     private ScreenRecorder mRecorder;
     private boolean menuOpen;
     private LoadingDialog dialog;
 
+    TextView tv_progress;
+    AppCompatCheckBox checkBox;
+    boolean canDownload = true;
+    int maxProgress = 100;
+
     @Inject
     GetGifPresenter gifPresenter;
 
     @Inject
     CheckVerionPresenter checkVerionPresenter;
+
+    @Inject
+    DownloadPresenter downloadPresenter;
 
     @Inject
     PushUserInfoPresenter pushUserInfoPresenter;
@@ -128,10 +157,10 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         int screenWidthDip = dm.widthPixels;// 屏幕宽（dip，如：320dip）
-        Defined.scrWidth = Defined.dp2px(this, screenWidthDip);
+        Defined.scrWidth = screenWidthDip;
         DaggerMainComponent.builder()
                 .getGifsModule(new GetGifsModule(this))
-                .versionModule(new VersionModule(this))
+                .versionModule(new VersionModule(this, this, "", MyApplication.rootDir + "/katarina.apk"))
                 .build()
                 .inject(this);
     }
@@ -178,28 +207,24 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     }
 
     private void initRclyView() {
-        gifs.add(new Gif(0, "http://img1.imgtn.bdimg.com/it/u=907245543,1366014994&fm=27&gp=0.jpg", "Tyhj", null));
-        gifs.add(new Gif(0, "http://img3.imgtn.bdimg.com/it/u=3746288086,1167920727&fm=27&gp=0.jpg", "Bouncing Ball", null));
-        gifs.add(new Gif(0, "http://img1.imgtn.bdimg.com/it/u=2646813706,2163648913&fm=27&gp=0.jpg", "Waving Man", null));
-        gifs.add(new Gif(0, "http://img0.imgtn.bdimg.com/it/u=1486507027,3356122497&fm=27&gp=0.jpg", "Animator", null));
-        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/2de892fdda63b6f08d33.jpg", "tyhj", null));
         gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/673a3e8635731bc31f24.gif", "tyhj", null));
         gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/1e073e3d618211af98ad.gif", "tyhj", null));
         gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/087818d1c6851befc7db.gif", "tyhj", null));
         gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/e7e75ca5c83c50143005.gif", "tyhj", null));
         gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/88da253584ed0e6aed15.gif", "tyhj", null));
-        gifs.add(new Gif(0, "http://ac-fgtnb2h8.clouddn.com/ddcc72642f4567e5a0e7.gif", "tyhj", null));
         adapter = new GifAdapter(this, gifs);
         rcly_gif.setAdapter(adapter);
-        rcly_gif.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
-        rcly_gif.setOnScrollListener(new RecyclerView.OnScrollListener() {
+        final StaggeredGridLayoutManager mStaggeredLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        //mStaggeredLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        rcly_gif.setLayoutManager(mStaggeredLayoutManager);
+        rcly_gif.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
+                mStaggeredLayoutManager.invalidateSpanAssignments();
                 cloneMenu();
             }
         });
-
     }
 
     private void initAnimator() {
@@ -292,6 +317,31 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
         }
     }
 
+    @LongClick(R.id.fab_add)
+    void add() {
+        if (MyApplication.setting.getUserName().equals("Tyhjh")) {
+            final AlertDialog.Builder di = new AlertDialog.Builder(this);
+            di.setCancelable(true);
+            LayoutInflater inflater = LayoutInflater.from(this);
+            View layout = inflater.inflate(R.layout.dialog_put_gif, null);
+            di.setView(layout);
+            final Dialog dialog = di.show();
+            final EditText edt_url = (EditText) layout.findViewById(R.id.edt_url);
+            Button btn_ok = (Button) layout.findViewById(R.id.btn_ok);
+            final EditText edt_name = (EditText) layout.findViewById(R.id.edt_name);
+            btn_ok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String url = edt_url.getText().toString();
+                    String name = edt_name.getText().toString();
+                    if (!url.equals("") && !url.equals("")) {
+                        new PutGif().putGif(name, url, CommonUtil.getDeviceIMEI(MainActivity.this));
+                    }
+                    dialog.dismiss();
+                }
+            });
+        }
+    }
 
     private void stopTranscribe() {
         mRecorder.quit();
@@ -313,13 +363,12 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     void mv2Gif(String pathFrom, String pathTo) {
         statrAnimator();
         snackbar(fab_add, "转换进行中", Snackbar.LENGTH_INDEFINITE);
-        if (Mv2Gif.convert(pathFrom, pathTo)) {
+        if (Mv2Gif.convert(pathFrom, pathTo, CommonUtil.getDeviceIMEI(this))) {
             snackbar(fab_add, "转换完成", Snackbar.LENGTH_SHORT);
+            stopAnimator();
         } else {
             snackbar(fab_add, "转换失败", Snackbar.LENGTH_SHORT);
         }
-        Mv2Gif.upload(pathFrom);
-        stopAnimator();
     }
 
     //文件夹
@@ -399,6 +448,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
             transcribeMoviePath = MyApplication.rootDir + "mp4/" + fileName + ".mp4";
             File file = new File(transcribeMoviePath);
             mRecorder = new ScreenRecorder(setting.getUseRecordWidth(), setting.getUseRecordHeight(), screenRecordBitrate, 1, mediaProjection, file.getAbsolutePath());
+            //log(setting.getUseRecordWidth()+"x"+setting.getUseRecordHeight()+":"+setting.getScreenDirection());
             mRecorder.start();
             Toast.makeText(this, "已开始屏幕录制", Toast.LENGTH_SHORT).show();
             outApp();
@@ -408,21 +458,18 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
                 String v_path = Defined.getFilePathFromContentUri(uri, getContentResolver());
                 if (v_path.toUpperCase().endsWith(".MP4")) {
                     mv2Gif(v_path, MyApplication.rootDir + "gif/" + "G_" + Defined.getNowTimeE() + ".gif");
+                } else if (MyApplication.setting.getUserName().equals("Tyhjh")) {
+                    Mv2Gif.upload(v_path, CommonUtil.getDeviceIMEI(MainActivity.this));
                 } else {
                     snackbar(fab_add, "请选择MP4格式的视频", Snackbar.LENGTH_SHORT);
                     log(v_path);
                 }
             }
         } else if (requestCode == VIDEO_CAPTURE && requestCode == VIDEO_CAPTURE) {
-            Uri videoUri = data.getData();
-            Cursor cursor = getContentResolver().query(videoUri, null, null,
-                    null, null);
-            cursor.moveToFirst();
-            // String imgNo = cursor.getString(0); // 图片编号
-            String v_path = cursor.getString(1); // 图片文件路径
-            String v_size = cursor.getString(2); // 图片大小
-            String v_name = cursor.getString(3); // 图片文件名
-            mv2Gif(v_path, MyApplication.rootDir + "gif/" + v_name + Defined.getNowTimeE() + ".gif");
+            if (resultCode == RESULT_OK) {
+                File file=new File(mp4path);
+                mv2Gif(file.getPath(), MyApplication.rootDir + "gif/" +"mv_"+ Defined.getNowTimeE() + ".gif");
+            }
         }
     }
 
@@ -450,11 +497,13 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
             mRecorder.quit();
             mRecorder = null;
         }
+        MLiteOrm.getInstance().save(MyApplication.setting);
     }
 
     //视频选择器
     private void chooseVideo() {
         Intent intent = new Intent();
+
         /* 开启Pictures画面Type设定为image */
         //intent.setType("image/*");
         // intent.setType("audio/*"); //选择音频
@@ -470,11 +519,58 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
     //录制视频
     private void recorderMovie() {
+
+
+        final String permission = Manifest.permission.CAMERA;  //相机权限
+        final String permission1 = Manifest.permission.WRITE_EXTERNAL_STORAGE; //写入数据权限
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, permission1) != PackageManager.PERMISSION_GRANTED) {  //先判断是否被赋予权限，没有则申请权限
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {  //给出权限申请说明
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, CAMERA_REQUEST_CODE);
+            } else { //直接申请权限
+                ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE); //申请权限，可同时申请多个权限，并根据用户是否赋予权限进行判断
+            }
+        } else {  //赋予过权限，则直接调用相机拍照
+            recordMv();
+        }
+
+    }
+
+    private void recordMv() {
+        mp4path = MyApplication.rootDir + "mp4/" + "mv_" + Defined.getNowTimeE() + ".mp4";
+        Uri imageUri;
         Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
+        if (Build.VERSION.SDK_INT >= 24) {
+            imageUri = FileProvider.getUriForFile(MainActivity.this, "com.yorhp.transcribescreen.fileProvider", new File(mp4path));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } else {
+            imageUri = Uri.fromFile(new File(mp4path));
+        }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
         intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, EXTRA_SIZE_LIMIT);
         intent.putExtra(EXTRA_DURATION_LIMIT, 1000);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(intent, VIDEO_CAPTURE);
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,  String[] permissions, int[] grantResults) {
+        switch (requestCode) {  //申请权限的返回值
+            case CAMERA_REQUEST_CODE:
+                int length = grantResults.length;
+                final boolean isGranted = length >= 1 && PackageManager.PERMISSION_GRANTED == grantResults[length - 1];
+                if (isGranted) {  //如果用户赋予权限，则调用相机
+                    recordMv();
+                } else { //未赋予权限，则做出对应提示
+
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     @Override
@@ -483,27 +579,86 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     }
 
     @Override
-    public void getGifOk(ArrayList<Gif> gifs) {
-
+    public void getGifOk(ArrayList<Gif> gif) {
+        gifs.addAll(gif);
+        adapter.notifyDataSetChanged();
     }
 
     @Override
     public void getGifFail(String msg) {
-
+        toast(msg);
     }
 
     @Override
     public void hasNewVersion(App app) {
+        update(app, downloadPresenter, checkBox, tv_progress);
+    }
 
+    private void update(App app, DownloadPresenter presenter, AppCompatCheckBox checkBox, TextView tv_progress) {
+        presenter.setDownLoadUrl(app.getApkUrl());
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View layout = inflater.inflate(R.layout.dialog_update, null);
+        final MyDialog dialog = new MyDialog(this, layout, R.style.dialog);
+        dialog.setCancelable(app.isMust());
+        TextView tv_version = (TextView) layout.findViewById(R.id.tv_version);
+        TextView tv_why = (TextView) layout.findViewById(R.id.tv_why);
+        tv_version.setText(app.getVersion());
+        tv_why.setText(app.getInfo());
+        checkBox = (AppCompatCheckBox) layout.findViewById(R.id.ck_download);
+        tv_progress = (TextView) layout.findViewById(R.id.tv_progress);
+        tv_progress.setText(0 + "%");
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked && canDownload) {
+                    downloadPresenter.downLoadToshow();
+                    canDownload = false;
+                }
+            }
+        });
+        dialog.show();
     }
 
     @Override
     public void checkVersionFail(String msg) {
-
+        toast(msg);
     }
 
     @Override
     public void lastVersion() {
 
     }
+
+
+    @Override
+    public void downloadStart(int progress) {
+        maxProgress = progress;
+    }
+
+    @Override
+    public void downloading(int progress) {
+        tv_progress.setText(100 * progress / maxProgress + "%");
+    }
+
+    @Override
+    public void downFinish(String path) {
+        tv_progress.setText(100 + "%");
+        AppUtil.installApk(path, this);
+    }
+
+    @Override
+    public void downCancel(int progress) {
+
+    }
+
+    @Override
+    public void downLoadErro(String path) {
+        checkBox.setChecked(false);
+        canDownload = true;
+        File file = new File(path);
+        if (file.exists())
+            file.delete();
+        toast("下载失败");
+    }
+
 }

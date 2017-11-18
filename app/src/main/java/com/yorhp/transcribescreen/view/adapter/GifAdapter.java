@@ -40,10 +40,14 @@ public class GifAdapter extends RecyclerView.Adapter<GifAdapter.Holder> {
 
     @Override
     public void onBindViewHolder(final Holder holder, int position) {
-        final Gif gif = arrayList.get(holder.getPosition());
-        holder.tv_name.setText(gif.getUserName());
-        //Picasso.with(context).load(gif.getUrl()).into(holder.iv_gif);
-        Glide.with(context).load(gif.getUrl()).diskCacheStrategy(DiskCacheStrategy.SOURCE).into(holder.iv_gif);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+        holder.tv_name.setText(arrayList.get(holder.getPosition()).getUserName());
+        Glide.with(context).load(arrayList.get(holder.getPosition()).getUrl()).asGif().diskCacheStrategy(DiskCacheStrategy.SOURCE).dontAnimate().into(holder.iv_gif);
     }
 
     @Override

@@ -21,8 +21,10 @@
         android:layout_gravity="bottom"
         android:layout_marginBottom="70dp" />
 
-    <TextView
+    <EditText
+        android:background="@null"
         android:elevation="4dp"
+        android:textSize="16sp"
         android:id="@+id/tv_usr_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

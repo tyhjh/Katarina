@@ -19,6 +19,8 @@ public class App {
         this.imageUrl = imageUrl;
     }
 
+
+
     public boolean isMust() {
         return must;
     }

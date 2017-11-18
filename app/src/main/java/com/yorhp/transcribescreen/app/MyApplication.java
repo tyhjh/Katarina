@@ -37,7 +37,7 @@ public class MyApplication extends Application {
     public static ArrayList<Activity> activities = new ArrayList<>();
     public static String rootDir;
     public static Setting setting;
-    public static boolean isFirstLog;
+    public static boolean isFirstLog=false;
     public static UserInfo userInfo;
     private static Retrofit retrofit;
 
@@ -66,14 +66,20 @@ public class MyApplication extends Application {
         if (!f1.exists()) {
             f1.mkdirs();
         }
-        File f2 = new File(rootDir+"gif/");
+        File f2 = new File(rootDir + "gif/");
         if (!f2.exists()) {
             f2.mkdirs();
         }
-        File f3 = new File(rootDir+"mp4/");
+        File f3 = new File(rootDir + "mp4/");
         if (!f3.exists()) {
             f3.mkdirs();
         }
+
+        File f4 = new File(rootDir + "download/");
+        if (!f4.exists()) {
+            f4.mkdirs();
+        }
+
     }
 
     //打印初始化
@@ -107,7 +113,7 @@ public class MyApplication extends Application {
 
         retrofit = new Retrofit
                 .Builder()
-                .baseUrl("http://192.168.31.170:8080/api/")
+                .baseUrl("http://tyhj5.com/katarina/api/")
                 .client(client)
                 .addConverterFactory(MyFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
@@ -117,7 +123,7 @@ public class MyApplication extends Application {
     /**
      * 设置返回数据的  Interceptor  判断网络   没网读取缓存
      */
-    public Interceptor getInterceptor(){
+    public Interceptor getInterceptor() {
         return new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -136,7 +142,7 @@ public class MyApplication extends Application {
     /**
      * 设置连接器  设置缓存
      */
-    public Interceptor getNetWorkInterceptor (){
+    public Interceptor getNetWorkInterceptor() {
         return new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {

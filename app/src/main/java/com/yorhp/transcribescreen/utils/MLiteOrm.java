@@ -30,5 +30,4 @@ public class MLiteOrm {
         }
         return instance;
     }
-
 }

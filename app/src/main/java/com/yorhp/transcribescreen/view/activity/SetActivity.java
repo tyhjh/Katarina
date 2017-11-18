@@ -4,31 +4,62 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.yorhp.transcribescreen.R;
 import com.yorhp.transcribescreen.app.BaseActivity;
+import com.yorhp.transcribescreen.app.MyApplication;
+import com.yorhp.transcribescreen.dagger.component.DaggerSetComponent;
+import com.yorhp.transcribescreen.dagger.module.VersionModule;
+import com.yorhp.transcribescreen.module.App;
+import com.yorhp.transcribescreen.presenter.AppVersionListener;
+import com.yorhp.transcribescreen.presenter.ShowDownloadFile;
+import com.yorhp.transcribescreen.presenter.impl.CheckVerionPresenter;
+import com.yorhp.transcribescreen.presenter.impl.DownloadPresenter;
+import com.yorhp.transcribescreen.utils.AppUtil;
 import com.yorhp.transcribescreen.utils.CommonUtil;
 import com.yorhp.transcribescreen.utils.MLiteOrm;
+import com.yorhp.transcribescreen.view.myView.MyDialog;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
+import java.io.File;
+
+import javax.inject.Inject;
+
 import static com.yorhp.transcribescreen.app.MyApplication.isFirstLog;
 import static com.yorhp.transcribescreen.app.MyApplication.setting;
 
 @EActivity(R.layout.activity_set)
-public class SetActivity extends BaseActivity {
+public class SetActivity extends BaseActivity implements AppVersionListener, ShowDownloadFile {
+
+    @Inject
+    DownloadPresenter downloadPresenter;
+
+    @Inject
+    CheckVerionPresenter checkVerionPresenter;
+
+    TextView tv_progress;
+    AppCompatCheckBox checkBox;
+    boolean canDownload = true;
+    int maxProgress = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        DaggerSetComponent.builder()
+                .versionModule(new VersionModule(this, this, "", MyApplication.rootDir + "/katarina.apk"))
+                .build()
+                .inject(this);
     }
 
     @ViewById
@@ -43,6 +74,7 @@ public class SetActivity extends BaseActivity {
     @ViewById
     Switch switch_isshare;
 
+
     @AfterViews
     void afterView() {
         tv_title.setText("设置");
@@ -50,15 +82,15 @@ public class SetActivity extends BaseActivity {
         if (isFirstLog == true) {
             toast("你可以在这里设置相关参数已达到你想要的效果");
         }
-        isFirstLog=false;
+        isFirstLog = false;
     }
 
     private void initView() {
-        tv_screen_record_resolution.setText(setting.getRecordHeight() + "x" + setting.getRecordWidth() + "P");
+        tv_screen_record_resolution.setText(setting.getRecordWidth() + "x" + setting.getRecordHeight() + "P");
         if (setting.getScreenDirection())
-            tv_screen_record_way.setText("竖屏");
-        else
             tv_screen_record_way.setText("横屏");
+        else
+            tv_screen_record_way.setText("竖屏");
         if (setting.getGifResolutionHeight() == 0)
             tv_gif_resolution.setText("原视频分辨率");
         else
@@ -67,7 +99,7 @@ public class SetActivity extends BaseActivity {
         tv_gif_skip.setText(setting.getSkip() + "s");
         tv_gif_time.setText(setting.getMp4Time() + "s");
         switch_isshare.setChecked(setting.getShare());
-        tv_version.setText("Version "+CommonUtil.getAppVersion(this));
+        tv_version.setText("Version " + CommonUtil.getAppVersion(this));
     }
 
     @Click
@@ -111,15 +143,13 @@ public class SetActivity extends BaseActivity {
     @Click
 //屏幕方向
     void ll_screen_record_way() {
+        setting.setScreenDirection(!setting.getScreenDirection());
         if (setting.getScreenDirection()) {
             tv_screen_record_way.setText("横屏");
         } else {
             tv_screen_record_way.setText("竖屏");
         }
-        setting.setScreenDirection(!setting.getScreenDirection());
-
     }
-
 
     @Click
 //GIF分辨率
@@ -173,7 +203,7 @@ public class SetActivity extends BaseActivity {
     @Click
 //更新
     void ll_version() {
-
+        checkVerionPresenter.checkUpdate(CommonUtil.getAppVersion(this));
     }
 
     @Click
@@ -183,7 +213,6 @@ public class SetActivity extends BaseActivity {
         intent.putExtra("getTime", 1);
         startActivityForResult(intent, 1);
     }
-
 
     @Click
 //最大转换时间
@@ -224,4 +253,76 @@ public class SetActivity extends BaseActivity {
         MLiteOrm.getInstance().update(setting);
         super.onDestroy();
     }
+
+    @Override
+    public void downloadStart(int progress) {
+        maxProgress = progress;
+    }
+
+    @Override
+    public void downloading(int progress) {
+        tv_progress.setText(100 * progress / maxProgress + "%");
+    }
+
+    @Override
+    public void downFinish(String path) {
+        tv_progress.setText(100 + "%");
+        AppUtil.installApk(path, this);
+    }
+
+    @Override
+    public void downCancel(int progress) {
+
+    }
+
+    @Override
+    public void downLoadErro(String path) {
+        checkBox.setChecked(false);
+        canDownload = true;
+        File file = new File(path);
+        if (file.exists())
+            file.delete();
+        toast("下载失败");
+    }
+
+    @Override
+    public void hasNewVersion(App app) {
+        update(app, downloadPresenter, checkBox, tv_progress);
+    }
+
+    @Override
+    public void checkVersionFail(String msg) {
+        toast(getString(R.string.txt_erro));
+    }
+
+    @Override
+    public void lastVersion() {
+        toast("你的APP是最新版本");
+    }
+
+    private void update(App app, DownloadPresenter presenter, AppCompatCheckBox checkBox, TextView tv_progress) {
+        presenter.setDownLoadUrl(app.getApkUrl());
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View layout = inflater.inflate(R.layout.dialog_update, null);
+        final MyDialog dialog = new MyDialog(this, layout, R.style.dialog);
+        dialog.setCancelable(app.isMust());
+        TextView tv_version = (TextView) layout.findViewById(R.id.tv_version);
+        TextView tv_why = (TextView) layout.findViewById(R.id.tv_why);
+        tv_version.setText(app.getVersion());
+        tv_why.setText(app.getInfo());
+        checkBox = (AppCompatCheckBox) layout.findViewById(R.id.ck_download);
+        tv_progress = (TextView) layout.findViewById(R.id.tv_progress);
+        tv_progress.setText(0 + "%");
+        checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked && canDownload) {
+                    downloadPresenter.downLoadToshow();
+                    canDownload = false;
+                }
+            }
+        });
+        dialog.show();
+    }
+
 }

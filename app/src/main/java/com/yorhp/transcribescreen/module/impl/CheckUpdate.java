@@ -46,6 +46,8 @@ public class CheckUpdate {
                             JSONObject jsonObject = new JSONObject(s);
                             if (jsonObject.getInt("code") == 200) {
                                 if (jsonObject.getString("version").equals(version)) {
+                                    String apkUrl = jsonObject.getString("apkUrl");
+                                    MyApplication.setting.setApkUrl(apkUrl);
                                     listener.lastVersion();
                                 } else {
                                     boolean must = jsonObject.getBoolean("must");
@@ -54,6 +56,7 @@ public class CheckUpdate {
                                     String info = jsonObject.getString("info");
                                     String imageUrl = jsonObject.getString("imageUrl");
                                     App app = new App(must, version, apkUrl, info, imageUrl);
+                                    MyApplication.setting.setApkUrl(apkUrl);
                                     listener.hasNewVersion(app);
                                 }
                             } else {
