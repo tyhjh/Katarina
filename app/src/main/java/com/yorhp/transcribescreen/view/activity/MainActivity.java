@@ -456,6 +456,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
                 String v_path = Defined.getFilePathFromContentUri(uri, getContentResolver());
+                log(v_path+"");
                 if (v_path.toUpperCase().endsWith(".MP4")) {
                     mv2Gif(v_path, MyApplication.rootDir + "gif/" + "G_" + Defined.getNowTimeE() + ".gif");
                 } else if (MyApplication.setting.getUserName().equals("Tyhjh")) {
