@@ -57,6 +57,7 @@ public class ChooseTimeActivity extends BaseActivity implements TimeAdapter.OnIt
                     timeList.add(100+k*10);
                 }
                 timeList.add(100000);
+                break;
             case 3:
                 tv_title.setText("转换时间");
                 timeList.clear();
