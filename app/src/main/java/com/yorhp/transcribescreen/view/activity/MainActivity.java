@@ -215,7 +215,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
         adapter = new GifAdapter(this, gifs);
         rcly_gif.setAdapter(adapter);
         final StaggeredGridLayoutManager mStaggeredLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        //mStaggeredLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        mStaggeredLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         rcly_gif.setLayoutManager(mStaggeredLayoutManager);
         rcly_gif.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -629,7 +629,6 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     public void lastVersion() {
 
     }
-
 
     @Override
     public void downloadStart(int progress) {

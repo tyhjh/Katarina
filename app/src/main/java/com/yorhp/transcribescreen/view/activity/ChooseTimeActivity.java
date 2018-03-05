@@ -48,14 +48,17 @@ public class ChooseTimeActivity extends BaseActivity implements TimeAdapter.OnIt
                 }
                 break;
             case 2:
-                tv_title.setText("时间选择");
+                tv_title.setText("跳过开头");
                 timeList.clear();
                 for (int i = 0; i <= 100; i++) {
                     timeList.add(i);
                 }
-                break;
+                for(int k=0;k<100;k++){
+                    timeList.add(100+k*10);
+                }
+                timeList.add(100000);
             case 3:
-                tv_title.setText("时间选择");
+                tv_title.setText("转换时间");
                 timeList.clear();
                 for (int i = 1; i <= 100; i++) {
                     timeList.add(i);

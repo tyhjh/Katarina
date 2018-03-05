@@ -14,6 +14,8 @@ import com.yorhp.transcribescreen.R;
 import com.yorhp.transcribescreen.module.Gif;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 /**
  * Created by Tyhj on 2017/6/29.
@@ -21,9 +23,13 @@ import java.util.ArrayList;
 
 public class GifAdapter extends RecyclerView.Adapter<GifAdapter.Holder> {
 
+    private final static float SIZE_SCALE_01 = 5 / 4f;
+    private final static float SIZE_SCALE_02 = 5 / 5f;
     ArrayList<Gif> arrayList = new ArrayList<Gif>();
     Context context;
     LayoutInflater inflater;
+
+    HashMap<Integer, Float> indexMap = new HashMap<Integer, Float>();
 
 
     public GifAdapter(Context context, ArrayList<Gif> gifArrayList) {
@@ -66,4 +72,32 @@ public class GifAdapter extends RecyclerView.Adapter<GifAdapter.Holder> {
             //iv_gif.setLayoutParams(new LinearLayout.LayoutParams(Defined.scrWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
         }
     }
+
+
+
+    private float getScaleType(int position) {
+
+        Random rand = new Random();
+        System.out.println(0.1 * (rand.nextInt(3)) + 0.6);
+        if (!indexMap.containsKey(position)) {
+            float scaleType;
+//
+            if (position == 0) {
+                scaleType = SIZE_SCALE_01;
+            } else if (position == 1) {
+                scaleType = SIZE_SCALE_02;
+            } else {
+//                scaleType =1.0f;
+//                    scaleType =(float) (0.1*(1+rand.nextInt(3))+0.6);
+//            scaleType = rand.nextFloat();
+                scaleType = rand.nextInt() % 2 == 0 ? SIZE_SCALE_01 : SIZE_SCALE_02;
+            }
+
+            indexMap.put(position, scaleType);
+
+        }
+        return indexMap.get(position);
+    }
+
+
 }
