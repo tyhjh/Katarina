@@ -22,8 +22,8 @@ import static com.yorhp.transcribescreen.app.MyApplication.setting;
 
 public class Mv2Gif {
 
-    private static final String AccessKey = "ziAwdcHcaJK5BhT9ndj7US7gKUSIMI20BgDM283X";
-    private static final String SecretKey = "-c8tMsBZXAbK8epmMT2av3Blm_ePXRf47NpUhE85";
+    private static final String AccessKey = "";
+    private static final String SecretKey = "";
 
     public static boolean convert(String pathFrom, String pathTo, String imei) {
 
