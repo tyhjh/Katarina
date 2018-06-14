@@ -52,6 +52,7 @@ public class MenuListFragment extends Fragment {
         gifView.setGifImage(R.mipmap.gif1);
         gifView.setGifImageType(com.ant.liao.GifView.GifImageType.COVER);
         gifView.setShowDimension(900, 820);
+
         tv_usr_name.setText(MyApplication.userInfo.getUserName());
 
         Picasso.with(getActivity())
