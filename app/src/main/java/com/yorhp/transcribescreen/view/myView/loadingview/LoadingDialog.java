@@ -10,14 +10,14 @@ import com.yorhp.transcribescreen.R;
 
 
 /**
- * ┏┓　　┏┓+ +
+ *                          ┏┓　　┏┓+ +
  * 　　　　　　　┏┛┻━━━┛┻┓ + +
  * 　　　　　　　┃　　　　　　　┃
  * 　　　　　　　┃　　　━　　　┃ ++ + + +
  * 　　　　　　 ████━████ ┃+
  * 　　　　　　　┃　　　　　　　┃ +
  * 　　　　　　　┃　　　┻　　　┃
- * iBoosJie.　 ┃　　　　　　　┃ + +
+ *                   　 ┃　　　　　　　┃ + +
  * 　　　　　　　┗━┓　　　┏━┛
  * 　　　　　　　　　┃　　　┃
  * 　　　　　　　　　┃　　　┃ + + + +
@@ -31,10 +31,6 @@ import com.yorhp.transcribescreen.R;
  * 　　　　　　　　　┗┓┓┏━┳┓┏┛ + + + +
  * 　　　　　　　　　　┃┫┫　┃┫┫
  * 　　　　　　　　　　┗┻┛　┗┻┛+ + + +
- * 创建人：贾杰
- * 创建日期： 2017/6/19
- * 说明：
- * 修改：
  */
 public class LoadingDialog extends Dialog {
 

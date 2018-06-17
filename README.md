@@ -100,6 +100,8 @@ public boolean startRecord() {
 }
 ```
 
+### 自己编译的，可以直接使用的FFmpeg库：[在Android中集成FFmpeg](https://www.jianshu.com/p/a62b6520e0de)
+
 ### ffmpeg视频转GIF命令
 ```java
 //我感觉应该是最全的命令了，时间单位为s，会根据宽度值自适应高度
