@@ -1,118 +1,38 @@
-﻿# Android录屏+视频转Gif实现
+# Android录屏+视频转Gif实现
 
-> 原文链接：https://www.jianshu.com/p/81cb36b610f4
+原文链接：https://www.jianshu.com/p/81cb36b610f4
 
-最近在GitHub上面看见一个视频转GIF的开源项目：https://github.com/dxjia/ffmpeg-commands-executor-library
-然后很多时候都会有手机录屏后再转成GIF动态图片的需求，都是下载一个录屏软件然后录屏再下载一个转换软件，而且一般是电脑上的软件或者在线转换，效果也是不怎么好，就想借这个东西来做一个录屏转GIF合一的软件。
+### 录屏转动图
+最近看见一个视频转GIF的开源项目：[ffmpeg-commands-executor-library](https://github.com/dxjia/ffmpeg-commands-executor-library)，有时会有手机录屏转成GIF动图的需求，都是下载一个录屏软件录屏，再下一个转换软件，一般是电脑上的软件或者在线转换，效果也不怎么好，就想借这个东西来做一个录屏转GIF合一的APP
 
-### [Android录屏（5.0+）](https://github.com/GLGJing/ScreenRecorder)
-从 Android 4.4 开始支持手机端本地录屏，但首先需要获取 root 权限才行，Android 5.0 引入 MediaProject，
-可以不用 root 就可以录屏，但需要弹权限获取窗口，需要用户允许才行，这里主要介绍 Android 5.0+ 利用
-MediaProject 在非 root 情况下实现屏幕录制。
 
-### 基本原理
-在 Android 5.0，Google 终于开放了视频录制的接口，其实严格来说，是屏幕采集的接口，也就是 MediaProjection
-和 MediaProjectionManager。 
+#### Android录屏
+Android 5.0+ 可以利用MediaProject 在非 root 情况下实现屏幕录制，具体过程就是开启录屏服务，设置SurfaceView去接收内容，获取视频流，然后通过MediaCodec来实现视频的硬编码，然后保存为视频文件
 
-### 具体实现步骤
-#### 1 申请权限
-在 AndroidManifest 中添加权限
-```
-<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-<uses-permission android:name="android.permission.RECORD_AUDIO"/>
-```
-Android 6.0 加入的动态权限申请，如果应用的 `targetSdkVersion` 是 23，申请敏感权限还需要动态申请
-```
-if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    != PackageManager.PERMISSION_GRANTED) {  
-  ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE);
-}
-if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.RECORD_AUDIO)
-    != PackageManager.PERMISSION_GRANTED) {  
-  ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.RECORD_AUDIO}, AUDIO_REQUEST_CODE);
-}
-```
-#### 2 获取 MediaProjectionManager 实例
-`MediaProjectionManager ` 也是系统服务的一种，通过 `getSystemService` 来获取实例
-```
-MediaProjectionManager projectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
-```
-#### 3 发起屏幕捕捉请求
-```
-Intent captureIntent= projectionManager.createScreenCaptureIntent(); 
-startActivityForResult(captureIntent, REQUEST_CODE);
-```
-#### 4 获取 MediaProjection
- 通过 `onActivityResult` 返回结果获取 `MediaProjection `
-```
-protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-  if (requestCode == RECORD_REQUEST_CODE && resultCode == RESULT_OK) {
-    mediaProjection = projectionManager.getMediaProjection(resultCode, data);
-  }
-}
-```
-#### 5 创建虚拟屏幕
-这一步就是通过 `MediaProject` 录制屏幕的关键所在，`VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR` 参数是指创建屏幕镜像，所以我们实际录制内容的是屏幕镜像，但内容和实际屏幕是一样的，并且这里我们把 `VirtualDisplay` 的渲染目标 Surface 设置为 `MediaRecorder` 的 `getSurface`，后面我就可以通过 `MediaRecorder` 将屏幕内容录制下来，并且存成 video 文件
+> [Android 5.0+ 屏幕录制](https://github.com/GLGJing/ScreenRecorder)：介绍了如何进行屏幕录制还有具体的demo
+[Android截屏、录屏工具](https://www.jianshu.com/p/8a428fb45098)：可以快速依赖，集成录屏功能
 
-```
-private void createVirtualDisplay() {
-  virtualDisplay = mediaProjection.createVirtualDisplay(
-        "MainScreen",
-        width,
-        height,
-        dpi,
-        DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR,
-        mediaRecorder.getSurface(),
-        null, null);
-}
-```
-#### 6 录制屏幕数据
-这里利用 `MediaRecord` 将屏幕内容保存下来，当然也可以利用其它方式保存屏幕内容，例如：`ImageReader`
-```
-private void initRecorder() {
-  File file = new File(Environment.getExternalStorageDirectory(), System.currentTimeMillis() + ".mp4");
-  mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-  mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
-  mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-  mediaRecorder.setOutputFile(file.getAbsolutePath());
-  mediaRecorder.setVideoSize(width, height);
-  mediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-  mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-  mediaRecorder.setVideoEncodingBitRate(5 * 1024 * 1024);
-  mediaRecorder.setVideoFrameRate(30);
-  try {
-    mediaRecorder.prepare();
-  } catch (IOException e) {
-    e.printStackTrace();
-  }
-}
 
-public boolean startRecord() {
-  if (mediaProjection == null || running) {
-    return false;
-  }
-  initRecorder();
-  createVirtualDisplay();
-  mediaRecorder.start();
-  running = true;
-  return true;
-}
-```
+### FFmpeg的使用
 
-### 自己编译的，可以直接使用的FFmpeg库：[在Android中集成FFmpeg](https://www.jianshu.com/p/a62b6520e0de)
-
-### ffmpeg视频转GIF命令
+1.FFmpeg视频转GIF命令，我感觉应该这应该是是最全的命令了，时间单位为s，会根据宽度值自适应高度
 ```java
-//我感觉应该是最全的命令了，时间单位为s，会根据宽度值自适应高度
 String command = "ffmpeg -i " + pathFrom + " -ss " + 跳过开头时间 + " -t " + 转换的时间 + " -vf scale=" + gif宽度 + ":-1 -r " + gif帧率 + " " + pathTo;
 //ffmpeg-commands-executor-library中的方法
+```
+
+2.使用ffmpeg-commands-executor-library中的方法来执行命令
+```java
 FFmpegNativeHelper.runCommand(command);
 ```
 这样的确可以转化成功，但是有一个bug，就是每次打开APP只能转换一次，第二次会失败，看得出来作者已经没有维护了，这样其实也没什么问题，每次转换重新打开APP就好了，非常简单，而且还有其他ffmpeg的功能也可以用。
 
 
-### 使用ffmpeg编译Android可运行库
-ffmpeg这么强大的一个开源库，我们现在程序有这么大一个bug存在，那肯定是不能忍受的，我们可以自己去下载ffmpeg源码然后编译出在Android上面可以运行的库。涉及到JNI和NDk，但其实一点都不难，我之前也没有接触过，不过看了几篇教程踩了不少坑也成功了。
+### 编译FFmpeg库
+ffmpeg这么强大的一个开源库，现在程序有这么大一个bug存在，那肯定是不能忍受的，可以自己去下载ffmpeg源码然后编译出在Android上面可以运行的库。涉及到JNI和NDk，但其实一点都不难，我之前也没有接触过，不过看了几篇教程踩了不少坑也成功了。
+
+> [在Android中集成FFmpeg](https://www.jianshu.com/p/a62b6520e0de)：我编译的库，可以快速依赖，集成FFmpeg，也有源码
+
 网上文章很多，但是真的有各种问题，我试了不少，下面两篇文章完全照着做其实也是不行的，但是改改还是可以搞定。
 
 [在Mac下编译 FFmpeg ，并在Android中使用：
@@ -159,19 +79,21 @@ int exit_program(int ret)
     return ret;
 }
 ```
+
 参考了这篇文章后面的坑点修改：
 http://www.jianshu.com/p/ceaa286d8aff
-
 
 Android录屏参考链接：
 https://github.com/GLGJing/ScreenRecorder
 
-ffmpeg命名参考链接：
+ffmpeg命令参考链接：
 [使用 ffmpeg 实现 MP4 与 GIF 的互转](http://note.rpsh.net/posts/2015/04/21/mac-osx-ffmpeg-mp4-gif-convert/)
 [FFmpeg续篇：截取视频片段转成GIF动画](http://itindex.net/detail/53447-ffmpeg-%E8%A7%86%E9%A2%91-%E7%89%87%E6%AE%B5)
 
 
-最后我的APP连接：http://ac-FGTNB2h8.clouddn.com/a820aae748fd5d87fa14.apk
+[在Android中集成FFmpeg](https://www.jianshu.com/p/a62b6520e0de)
+项目源码：https://github.com/tyhjh/FFmpeg
+最后我的APP连接：http://lc-fgtnb2h8.cn-n1.lcfile.com/eb77c867e490eba1d9ba.apk
 
-支持录屏后转gif，支持摄像后转gif，支持本地视频转gif以及各种参数设置，其实还有gif直接获取URL，但是使用的是七牛云，有流量限制所以未完全开放
+支持录屏后转gif，支持摄像后转gif，支持本地视频转gif以及各种参数设置（侧边栏菜单中设置）
 
