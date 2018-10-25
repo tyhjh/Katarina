@@ -1,6 +1,6 @@
 ﻿# Android录屏+视频转Gif实现
 
-> 原文链接：https://www.zybuluo.com/Tyhj/note/946784
+> 原文链接：https://www.jianshu.com/p/81cb36b610f4
 
 最近在GitHub上面看见一个视频转GIF的开源项目：https://github.com/dxjia/ffmpeg-commands-executor-library
 然后很多时候都会有手机录屏后再转成GIF动态图片的需求，都是下载一个录屏软件然后录屏再下载一个转换软件，而且一般是电脑上的软件或者在线转换，效果也是不怎么好，就想借这个东西来做一个录屏转GIF合一的软件。
