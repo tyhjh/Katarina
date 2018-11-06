@@ -1,6 +1,6 @@
 package com.yorhp.transcribescreen.utils.qiniuToken;
 
-import com.qiniu.android.dns.util.Hex;
+
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;

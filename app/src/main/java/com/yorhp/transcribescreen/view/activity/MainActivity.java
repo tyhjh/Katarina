@@ -229,10 +229,11 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
     private void initAnimator() {
 
-        ObjectAnimator animator1 = ObjectAnimator.ofFloat(fab_add, "rotation", 135);
+        ObjectAnimator animator1 = ObjectAnimator.ofFloat(   fab_add, "rotation", 135);
         animator1.setInterpolator(new DecelerateInterpolator());
 
-        ObjectAnimator animatorBack1 = ObjectAnimator.ofFloat(fab_add, "rotation", 135, 0);
+        ObjectAnimator animatorBack1 = ObjectAnimator.ofFloat(fab_add,
+                "rotation", 135, 0);
         animatorBack1.setInterpolator(new DecelerateInterpolator());
 
 
