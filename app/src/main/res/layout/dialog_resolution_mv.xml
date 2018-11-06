@@ -7,6 +7,20 @@
 
 
     <Button
+        android:id="@+id/bt0"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="left|center_vertical"
+        android:paddingLeft="20dp"
+        android:text="2960x1440P"
+        android:textColor="@color/gray"
+        android:textSize="15sp" />
+
+
+
+    <Button
         android:id="@+id/bt1"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"

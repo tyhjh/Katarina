@@ -36,6 +36,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ScreenRecorder extends Thread {
     private static final String TAG = "ScreenRecorder";
 
+    //码率为32M
+    public static int screenRecordBitrate = 32 * 1024 * 1024;
+
     private int mWidth;
     private int mHeight;
     private int mBitRate;
@@ -66,6 +69,8 @@ public class ScreenRecorder extends Thread {
         mMediaProjection = mp;
         mDstPath = dstPath;
     }
+
+
 
 
     public ScreenRecorder(MediaProjection mp) {
