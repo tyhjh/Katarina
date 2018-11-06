@@ -1,6 +1,5 @@
 package com.yorhp.transcribescreen.utils.qiniuToken;
 
-import com.qiniu.android.dns.util.Hex;
 
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -137,12 +136,12 @@ public final class StringUtils {
         return new String(data, Constants.UTF_8);
     }
 
-    public static String md5Lower(String src) throws NoSuchAlgorithmException {
+    /*public static String md5Lower(String src) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("MD5");
         digest.update(src.getBytes(Charset.forName("UTF-8")));
         byte[] md5Bytes = digest.digest();
         return Hex.encodeHexString(md5Bytes);
-    }
+    }*/
     public static boolean isNotEmpty(String str) {
         return ((str != null) && (str.trim().length() > 0));
     }

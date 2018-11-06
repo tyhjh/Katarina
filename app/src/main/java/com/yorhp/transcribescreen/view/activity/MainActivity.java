@@ -99,7 +99,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     private static final long EXTRA_SIZE_LIMIT = 10485760L * 500;
     private AnimatorSet animatorSet, animatorSetBack, transcribeStart, transcribeStop;
     //比特率
-    private int screenRecordBitrate = 6000000;
+    private int screenRecordBitrate = 32 * 1024 * 1024;;
     private String mp4path;
 
     MediaProjectionManager mMediaProjectionManager;
