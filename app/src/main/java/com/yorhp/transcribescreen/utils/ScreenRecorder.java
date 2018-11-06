@@ -71,8 +71,6 @@ public class ScreenRecorder extends Thread {
     }
 
 
-
-
     public ScreenRecorder(MediaProjection mp) {
         // 480p 2Mbps
         this(640, 480, 2000000, 1, mp, "/sdcard/test.mp4");

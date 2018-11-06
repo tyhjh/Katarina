@@ -293,7 +293,7 @@ public class SetActivity extends BaseActivity implements AppVersionListener, Sho
 
     @Override
     public void checkVersionFail(String msg) {
-        toast(getString(R.string.txt_erro));
+        //toast(getString(R.string.txt_erro));
     }
 
     @Override
