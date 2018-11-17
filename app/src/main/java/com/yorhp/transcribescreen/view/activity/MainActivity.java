@@ -60,6 +60,7 @@ import com.yorhp.transcribescreen.presenter.impl.PushUserInfoPresenter;
 import com.yorhp.transcribescreen.utils.AppUtil;
 import com.yorhp.transcribescreen.utils.CommonUtil;
 import com.yorhp.transcribescreen.utils.Defined;
+import com.yorhp.transcribescreen.utils.GetImagePath;
 import com.yorhp.transcribescreen.utils.MLiteOrm;
 import com.yorhp.transcribescreen.utils.Mv2Gif;
 import com.yorhp.transcribescreen.utils.ScreenRecorder;
@@ -229,10 +230,11 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
     private void initAnimator() {
 
-        ObjectAnimator animator1 = ObjectAnimator.ofFloat(fab_add, "rotation", 135);
+        ObjectAnimator animator1 = ObjectAnimator.ofFloat(   fab_add, "rotation", 135);
         animator1.setInterpolator(new DecelerateInterpolator());
 
-        ObjectAnimator animatorBack1 = ObjectAnimator.ofFloat(fab_add, "rotation", 135, 0);
+        ObjectAnimator animatorBack1 = ObjectAnimator.ofFloat(fab_add,
+                "rotation", 135, 0);
         animatorBack1.setInterpolator(new DecelerateInterpolator());
 
 
@@ -455,7 +457,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
         } else if (requestCode == 2) {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
-                String v_path = Defined.getFilePathFromContentUri(uri, getContentResolver());
+                String v_path = GetImagePath.getPath(MainActivity.this,uri);
                 log(v_path+"");
                 if (v_path.toUpperCase().endsWith(".MP4")) {
                     mv2Gif(v_path, MyApplication.rootDir + "gif/" + "G_" + Defined.getNowTimeE() + ".gif");
@@ -587,7 +589,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
     @Override
     public void getGifFail(String msg) {
-        toast(msg);
+        //toast(msg);
     }
 
     @Override
@@ -622,7 +624,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
     @Override
     public void checkVersionFail(String msg) {
-        toast(msg);
+        //toast(msg);
     }
 
     @Override
@@ -658,7 +660,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
         File file = new File(path);
         if (file.exists())
             file.delete();
-        toast("下载失败");
+        //toast("下载失败");
     }
 
 }
