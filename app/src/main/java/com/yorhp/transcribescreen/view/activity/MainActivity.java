@@ -3,9 +3,9 @@ package com.yorhp.transcribescreen.view.activity;
 import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
@@ -19,7 +19,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -30,9 +29,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
-import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -49,7 +46,6 @@ import com.yorhp.transcribescreen.dagger.module.GetGifsModule;
 import com.yorhp.transcribescreen.dagger.module.VersionModule;
 import com.yorhp.transcribescreen.module.App;
 import com.yorhp.transcribescreen.module.Gif;
-import com.yorhp.transcribescreen.module.impl.PutGif;
 import com.yorhp.transcribescreen.presenter.AppVersionListener;
 import com.yorhp.transcribescreen.presenter.GifListener;
 import com.yorhp.transcribescreen.presenter.ShowDownloadFile;
@@ -57,12 +53,13 @@ import com.yorhp.transcribescreen.presenter.impl.CheckVerionPresenter;
 import com.yorhp.transcribescreen.presenter.impl.DownloadPresenter;
 import com.yorhp.transcribescreen.presenter.impl.GetGifPresenter;
 import com.yorhp.transcribescreen.presenter.impl.PushUserInfoPresenter;
+import com.yorhp.transcribescreen.service.Mv2Gif;
+import com.yorhp.transcribescreen.service.MvHandle;
 import com.yorhp.transcribescreen.utils.AppUtil;
 import com.yorhp.transcribescreen.utils.CommonUtil;
 import com.yorhp.transcribescreen.utils.Defined;
 import com.yorhp.transcribescreen.utils.GetImagePath;
 import com.yorhp.transcribescreen.utils.MLiteOrm;
-import com.yorhp.transcribescreen.utils.Mv2Gif;
 import com.yorhp.transcribescreen.utils.ScreenRecorder;
 import com.yorhp.transcribescreen.view.adapter.GifAdapter;
 import com.yorhp.transcribescreen.view.fragement.MenuListFragment;
@@ -92,15 +89,18 @@ import static com.yorhp.transcribescreen.app.MyApplication.setting;
 @EActivity(R.layout.activity_main)
 public class MainActivity extends BaseActivity implements GifListener, AppVersionListener, ShowDownloadFile {
 
-    private static final int CAMERA_REQUEST_CODE =4 ;
+    private static final int CAMERA_REQUEST_CODE = 4;
     private String transcribeMoviePath;
     private String fileName;
     private static final int REQUEST_CODE = 1;
+    private static final int REQUEST_CODE_CHOOSE_MVTOGIF = 2;
     private static final int VIDEO_CAPTURE = 3;
+    private static final int REQUEST_CODE_CHOOSE_MVTOCROP = 5;
     private static final long EXTRA_SIZE_LIMIT = 10485760L * 500;
     private AnimatorSet animatorSet, animatorSetBack, transcribeStart, transcribeStop;
     //比特率
-    private int screenRecordBitrate = 32 * 1024 * 1024;;
+    private int screenRecordBitrate = 32 * 1024 * 1024;
+    ;
     private String mp4path;
 
     MediaProjectionManager mMediaProjectionManager;
@@ -230,7 +230,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
     private void initAnimator() {
 
-        ObjectAnimator animator1 = ObjectAnimator.ofFloat(   fab_add, "rotation", 135);
+        ObjectAnimator animator1 = ObjectAnimator.ofFloat(fab_add, "rotation", 135);
         animator1.setInterpolator(new DecelerateInterpolator());
 
         ObjectAnimator animatorBack1 = ObjectAnimator.ofFloat(fab_add,
@@ -321,7 +321,8 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
     @LongClick(R.id.fab_add)
     void add() {
-        if (MyApplication.setting.getUserName().equals("Tyhjh")) {
+
+        /*if (MyApplication.setting.getUserName().equals("Tyhjh")) {
             final AlertDialog.Builder di = new AlertDialog.Builder(this);
             di.setCancelable(true);
             LayoutInflater inflater = LayoutInflater.from(this);
@@ -342,8 +343,22 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
                     dialog.dismiss();
                 }
             });
+        }*/
+
+        chooseVideo(REQUEST_CODE_CHOOSE_MVTOCROP);
+
+    }
+
+
+    @Background
+    void cropMv(String pathForm, String pathTo, Point startPoint, int width, int height) {
+        if (MvHandle.cropMvSize(pathForm, pathTo, startPoint, width, height)) {
+            snackbar(fab_add, "视频剪裁完成", Snackbar.LENGTH_SHORT);
+        } else {
+            snackbar(fab_add, "视频剪裁失败", Snackbar.LENGTH_SHORT);
         }
     }
+
 
     private void stopTranscribe() {
         mRecorder.quit();
@@ -377,7 +392,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     @Click
     void fab_item1() {
         cloneMenu();
-        chooseVideo();
+        chooseVideo(REQUEST_CODE_CHOOSE_MVTOGIF);
     }
 
     //摄像头
@@ -454,11 +469,11 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
             mRecorder.start();
             Toast.makeText(this, "已开始屏幕录制", Toast.LENGTH_SHORT).show();
             outApp();
-        } else if (requestCode == 2) {
+        } else if (requestCode == REQUEST_CODE_CHOOSE_MVTOGIF) {
             if (resultCode == RESULT_OK) {
                 Uri uri = data.getData();
-                String v_path = GetImagePath.getPath(MainActivity.this,uri);
-                log(v_path+"");
+                String v_path = GetImagePath.getPath(MainActivity.this, uri);
+                log(v_path + "");
                 if (v_path.toUpperCase().endsWith(".MP4")) {
                     mv2Gif(v_path, MyApplication.rootDir + "gif/" + "G_" + Defined.getNowTimeE() + ".gif");
                 } else if (MyApplication.setting.getUserName().equals("Tyhjh")) {
@@ -470,8 +485,22 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
             }
         } else if (requestCode == VIDEO_CAPTURE && requestCode == VIDEO_CAPTURE) {
             if (resultCode == RESULT_OK) {
-                File file=new File(mp4path);
-                mv2Gif(file.getPath(), MyApplication.rootDir + "gif/" +"mv_"+ Defined.getNowTimeE() + ".gif");
+                File file = new File(mp4path);
+                mv2Gif(file.getPath(), MyApplication.rootDir + "gif/" + "mv_" + Defined.getNowTimeE() + ".gif");
+            }
+        } else if (requestCode == REQUEST_CODE_CHOOSE_MVTOCROP) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                String v_path = GetImagePath.getPath(MainActivity.this, uri);
+                if (v_path.toUpperCase().endsWith(".MP4")) {
+                    fileName = "record_" + "_" + Defined.getNowTimeE();
+                    transcribeMoviePath = MyApplication.rootDir + "mp4/" + fileName + ".mp4";
+                    cropMv(v_path, transcribeMoviePath, new Point(0, 660), 1440, 1655);
+                } else {
+                    snackbar(fab_add, "请选择MP4格式的视频", Snackbar.LENGTH_SHORT);
+                }
+
+
             }
         }
     }
@@ -504,7 +533,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
     }
 
     //视频选择器
-    private void chooseVideo() {
+    private void chooseVideo(int requestCode) {
         Intent intent = new Intent();
 
         /* 开启Pictures画面Type设定为image */
@@ -517,7 +546,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
         /* 使用Intent.ACTION_GET_CONTENT这个Action */
         intent.setAction(Intent.ACTION_GET_CONTENT);
         /* 取得相片后返回本画面 */
-        startActivityForResult(intent, 2);
+        startActivityForResult(intent, requestCode);
     }
 
     //录制视频
@@ -560,7 +589,7 @@ public class MainActivity extends BaseActivity implements GifListener, AppVersio
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,  String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         switch (requestCode) {  //申请权限的返回值
             case CAMERA_REQUEST_CODE:
                 int length = grantResults.length;

@@ -117,14 +117,14 @@ public class SetActivity extends BaseActivity implements AppVersionListener, Sho
         di.setView(layout);
         final Dialog dialog = di.show();
         final Button[] buttons;
-        Button bt0,bt1, bt2, bt3, bt4, bt5;
+        Button bt0, bt1, bt2, bt3, bt4, bt5;
         bt0 = (Button) layout.findViewById(R.id.bt0);
         bt1 = (Button) layout.findViewById(R.id.bt1);
         bt2 = (Button) layout.findViewById(R.id.bt2);
         bt3 = (Button) layout.findViewById(R.id.bt3);
         bt4 = (Button) layout.findViewById(R.id.bt4);
         bt5 = (Button) layout.findViewById(R.id.bt5);
-        buttons = new Button[]{bt0,bt1, bt2, bt3, bt4, bt5};
+        buttons = new Button[]{bt0, bt1, bt2, bt3, bt4, bt5};
         for (int i = 0; i < buttons.length; i++) {
             final int finalI = i;
             buttons[i].setOnClickListener(new View.OnClickListener() {
@@ -215,6 +215,7 @@ public class SetActivity extends BaseActivity implements AppVersionListener, Sho
         startActivityForResult(intent, 1);
     }
 
+
     @Click
 //最大转换时间
     void ll_gif_time() {
@@ -222,6 +223,7 @@ public class SetActivity extends BaseActivity implements AppVersionListener, Sho
         intent.putExtra("getTime", 3);
         startActivityForResult(intent, 3);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

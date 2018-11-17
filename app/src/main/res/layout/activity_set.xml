@@ -124,7 +124,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="转换跳过开始" />
+                    android:text="转换视频开始时间" />
 
                 <TextView
                     android:id="@+id/tv_gif_skip"
@@ -147,7 +147,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="视频转换最大时长" />
+                    android:text="转换结束时间" />
 
                 <TextView
                     android:id="@+id/tv_gif_time"

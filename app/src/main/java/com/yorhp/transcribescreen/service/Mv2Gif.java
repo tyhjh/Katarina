@@ -1,4 +1,4 @@
-package com.yorhp.transcribescreen.utils;
+package com.yorhp.transcribescreen.service;
 
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -9,6 +9,8 @@ import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.yorhp.transcribescreen.app.MyApplication;
 import com.yorhp.transcribescreen.module.impl.PutGif;
+import com.yorhp.transcribescreen.utils.Defined;
+import com.yorhp.transcribescreen.utils.FFmpeg;
 import com.yorhp.transcribescreen.utils.qiniuToken.Auth;
 
 import org.json.JSONObject;
@@ -26,8 +28,7 @@ public class Mv2Gif {
     private static final String SecretKey = "-c8tMsBZXAbK8epmMT2av3Blm_ePXRf47NpUhE85";
 
     public static boolean convert(String pathFrom, String pathTo, String imei) {
-
-        String command = "ffmpeg -i " + pathFrom + " -ss " + setting.getSkip() + " -t " + setting.getMp4Time() + setting.getGifResolution() + " -r "+setting.getGifFrameRates() + " " + pathTo;
+        String command = "ffmpeg -i " + pathFrom + " -ss " + setting.getSkip() + " -t " + (setting.getMp4Time()-setting.getSkip()) + setting.getGifResolution() + " -r "+setting.getGifFrameRates() + " " + pathTo;
         Log.e("command", command);
         int result = FFmpeg.getsInstance().run(command.split(" "));
         upload(pathTo, imei);
@@ -36,7 +37,6 @@ public class Mv2Gif {
         else
             return false;
     }
-
 
     public static void upload(final String pathFrom, final String imei) {
         if (!setting.getShare())
