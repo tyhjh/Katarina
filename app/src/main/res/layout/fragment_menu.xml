@@ -1,0 +1,18 @@
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:fitsSystemWindows="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.NavigationView
+            android:id="@+id/vNavigation"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:headerLayout="@layout/view_global_menu_header"
+            app:itemIconTint="@color/gray"
+            app:itemTextColor="@color/gray"
+            app:insetForeground="@color/white"
+            app:menu="@menu/drawer_menu"/>
+    </RelativeLayout>

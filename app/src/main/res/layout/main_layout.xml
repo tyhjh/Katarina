@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="2dp">
+
+        <com.yorhp.transcribescreen.view.myView.LoopBannerView
+            android:clickable="true"
+            android:id="@+id/lbv_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </com.yorhp.transcribescreen.view.myView.LoopBannerView>
+
+    </android.support.v7.widget.CardView>
+
+
+    <com.yorhp.transcribescreen.view.myView.GlideRecycleView
+        android:clickable="true"
+        android:id="@+id/rcly_gif"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="20dp">
+
+    </com.yorhp.transcribescreen.view.myView.GlideRecycleView>
+
+
+</LinearLayout>
+

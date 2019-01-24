@@ -1,0 +1,36 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_feed"
+            android:icon="@drawable/ic_global_menu_feed"
+            android:title="我的图片" />
+        <item
+            android:id="@+id/menu_direct"
+            android:icon="@drawable/ic_global_menu_direct"
+            android:title="下载" />
+        <item
+            android:id="@+id/menu_news"
+            android:icon="@drawable/ic_global_menu_news"
+            android:title="通知" />
+        <item
+            android:id="@+id/menu_twocode"
+            android:icon="@drawable/ic_twocode_24dp"
+            android:title="扫一扫" />
+
+        <item
+            android:id="@+id/menu_share"
+            android:icon="@drawable/ic_share"
+            android:title="分享" />
+
+        <item
+            android:id="@+id/menu_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="设置" />
+    </group>
+    <group android:id="@+id/menu_group_2">
+        <item
+            android:id="@+id/menu_about"
+            android:icon="@drawable/ic_global_menu_popular"
+            android:title="关于" />
+    </group>
+</menu>
